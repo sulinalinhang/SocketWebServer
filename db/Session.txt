@@ -8,5 +8,10 @@
     "id": 2,
     "username": "gua1",
     "session_id": "jjkkkklkjkljkjlj"
+  },
+  {
+    "id": 3,
+    "username": "test",
+    "session_id": "jjjljjkkkkljjljj"
   }
 ]
