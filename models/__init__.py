@@ -4,10 +4,6 @@ from utils import log
 
 
 def save(data, path):
-    """
-    data 是 dict 或者 list
-    path 是保存文件的路径
-    """
     s = json.dumps(data, indent=2, ensure_ascii=False)
     with open(path, 'w+', encoding='utf-8') as f:
         log('save', path, s, data)
@@ -22,14 +18,6 @@ def load(path):
 
 
 class Model(object):
-    """
-    Model 是所有 model 的基类
-    @classmethod 是一个套路用法
-    例如
-    user = User()
-    user.db_path() 返回 User.txt
-    """
-
     def __init__(self, form):
         self.id = form.get('id', None)
         # self.delted = xxx
@@ -37,11 +25,6 @@ class Model(object):
 
     @classmethod
     def db_path(cls):
-        """
-        cls 是类名, 谁调用的类名就是谁的
-        classmethod 有一个参数是 class(这里我们用 cls 这个名字)
-        所以我们可以得到 class 的名字
-        """
         classname = cls.__name__
         path = 'db/{}.txt'.format(classname)
         return path
@@ -54,15 +37,9 @@ class Model(object):
 
     @classmethod
     def all(cls):
-        """
-        all 方法(类里面的函数叫方法)使用 load 函数得到所有的 models
-        """
         path = cls.db_path()
         models = load(path)
         log('models in all', models)
-        # 这里用了列表推导生成一个包含所有 实例 的 list
-        # m 是 dict, 用 cls.new(m) 可以初始化一个 cls 的实例
-        # 不明白就 log 大法看看这些都是啥
         ms = [cls.new(m) for m in models]
         return ms
 
@@ -78,7 +55,6 @@ class Model(object):
                     log('exist', m, k)
             if exist:
                 return m
-        # return None
 
     @classmethod
     def find_all(cls, **kwargs):
@@ -96,22 +72,16 @@ class Model(object):
         return models
 
     def save(self):
-        """
-        用 all 方法读取文件中的所有 model 并生成一个 list
-        把 self 添加进去并且保存进文件
-        """
-
         models = self.all()
-        log('models <{}>'.format(models))
+        # log('models <{}>'.format(models))
 
         if self.id is None:
-            # 加上 id
-            log('id is None', self)
+            # log('id is None', self)
             if len(models) > 0:
-                log('不是第一个元素 <{}>'.format(models[-1].id))
+                # log('不是第一个元素 <{}>'.format(models[-1].id))
                 self.id = models[-1].id + 1
             else:
-                log('第一个元素')
+                # log('第一个元素')
                 self.id = 1
             models.append(self)
         else:
@@ -128,12 +98,6 @@ class Model(object):
         save(l, path)
 
     def __repr__(self):
-        """
-        __repr__ 是一个魔法方法
-        简单来说, 它的作用是得到类的 字符串表达 形式
-        比如 print(u) 实际上是 print(u.__repr__())
-        不明白就看书或者 搜
-        """
         classname = self.__class__.__name__
         properties = ['{}: ({})'.format(k, v) for k, v in self.__dict__.items()]
         s = '\n'.join(properties)

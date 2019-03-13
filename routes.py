@@ -9,13 +9,9 @@ session_date = {}
 
 
 def random_string():
-    """
-    生成一个随机的字符串
-    """
     seed = 'kjlkjlkjlkljlkjkl'
     s = ''
     for i in range(16):
-        # 这里 len(seed) - 2 是因为我懒得去翻文档来确定边界了
         random_index = random.randint(0, len(seed) - 2)
         s += seed[random_index]
     return s
@@ -23,20 +19,11 @@ def random_string():
 
 
 def template(name):
-    """
-    根据名字读取 templates 文件夹里的一个文件并返回
-    """
     path = 'templates/' + name
     with open(path, 'r', encoding='utf-8') as f:
         return f.read()
 
 def error(request, code=404):
-    """
-    根据 code 返回不同的错误响应
-    目前只有 404
-    """
-    # 之前上课我说过不要用数字来作为字典的 key
-    # 但是在 HTTP 协议中 code 都是数字似乎更方便所以打破了这个原则
     e = {
         404: b'HTTP/1.x 404 NOT FOUND\r\n\r\n<h1>NOT FOUND</h1>',
     }
@@ -59,10 +46,6 @@ def current_user(request):
 
 
 def response_with_headers(headers):
-    """
-    Content-Type: text/html
-    Set-Cookie: user=gua
-    """
     header = 'HTTP/1.x 210 VERY OK\r\n'
     header += ''.join([
         '{}: {}\r\n'.format(k, v) for k, v in headers.items()
@@ -71,9 +54,6 @@ def response_with_headers(headers):
 
 
 def route_index(request):
-    """
-    主页的处理函数, 返回主页的响应
-    """
     header = 'HTTP/1.x 210 VERY OK\r\nContent-Type: text/html\r\n'
     body = template('index.html')
     username = current_user(request)
@@ -83,9 +63,6 @@ def route_index(request):
 
 
 def route_login(request):
-    """
-    登录页面的路由函数
-    """
     headers = {
         'Content-Type': 'text/html',
     }
@@ -96,11 +73,6 @@ def route_login(request):
         form = request.form()
         u = User.new(form)
         if u.validate_login():
-            # 下面是把用户名存入 cookie 中
-            # headers['Set-Cookie'] = 'user={}'.format(u.username)
-            # session 会话
-            # token 令牌
-            # 设置一个随机字符串来当令牌使用
             session_id = random_string()
             session_date['username'] = u.username
             session_date['session_id'] = session_id
@@ -117,9 +89,6 @@ def route_login(request):
     body = template('login.html')
     body = body.replace('{{result}}', result)
     body = body.replace('{{username}}', username)
-    # 1. response header
-    # 2. headers
-    # 3. body
     header = response_with_headers(headers)
     r = '{}\r\n{}'.format(header, body)
     log('login 的响应', r)
@@ -145,9 +114,6 @@ def route_register(request):
 
 
 def route_message(request):
-    """
-    主页的处理函数, 返回主页的响应
-    """
     username = current_user(request)
     # if username == '【游客】':
     if username == User.guest():
@@ -161,10 +127,8 @@ def route_message(request):
 
         if len(data) > 0:
             log('post', data)
-            # 应该在这里保存 message_list
             m = Message.new(data)
             m.save()
-            # message_list.append(data)
 
         header = 'HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n'
         body = template('messages.html')
@@ -175,9 +139,6 @@ def route_message(request):
 
 
 def route_static(request):
-    """
-    静态资源的处理函数, 读取图片并生成响应返回
-    """
     filename = request.query['file']
     path = 'static/{}'.format(filename)
     with open(path, 'rb') as f:
@@ -208,11 +169,6 @@ def route_profile(request):
 
 
 def route_dict():
-    """
-    路由字典
-    key 是路由(路由就是 path)
-    value 是路由处理函数(就是响应)
-    """
     d = {
         '/': route_index,
         '/static': route_static,
